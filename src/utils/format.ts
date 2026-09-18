@@ -20,10 +20,10 @@ export function readingTime(body: string | undefined): number {
   return Math.max(1, Math.round(cjk / 400 + words / 200));
 }
 
-// 标签 URL 片段：小写、空格转连字符。中文标签保留原样，
-// 在生成链接时由 encodeURIComponent 负责编码。
+// URL 片段：小写、空格与斜杠转连字符。中文保留原样，
+// 生成链接时由 encodeURIComponent 负责编码。
 export function slugifyTag(tag: string): string {
-  return tag.trim().toLowerCase().replace(/\s+/g, '-');
+  return tag.trim().toLowerCase().replace(/[\s/\\]+/g, '-');
 }
 
 export function tagHref(tag: string): string {
@@ -31,7 +31,7 @@ export function tagHref(tag: string): string {
 }
 
 export function slugifyCategory(category: string): string {
-  return category.trim().toLowerCase().replace(/\s+/g, '-');
+  return category.trim().toLowerCase().replace(/[\s/\\]+/g, '-');
 }
 
 export function categoryHref(category: string): string {
