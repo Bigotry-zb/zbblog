@@ -1,17 +1,27 @@
 ---
 import { SITE } from '../consts';
+import Icon from './Icon.astro';
 
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <div class="wrap">
+  <div class="container footer-content">
     <div class="footer-links">
-      <a href="/rss.xml">RSS</a>
-      <a href="/sitemap-index.xml">Sitemap</a>
-      <a href={`https://github.com/`} rel="noopener" target="_blank">GitHub</a>
+      <a href="/rss.xml"><Icon name="rss" /> RSS</a>
+      <a href={SITE.github} target="_blank" rel="noopener">
+        <Icon name="github" /> GitHub
+      </a>
     </div>
-    <div>© {year} {SITE.author} · {SITE.title}</div>
+
+    <div>Copyright © {year} {SITE.brand}</div>
+
+    <div class="footer-stats">
+      <span id="busuanzi_container_site_pv" style="display:none">
+        总访问量 <span id="busuanzi_value_site_pv">-</span> 次
+      </span>
+    </div>
+
     {
       SITE.icp && (
         <div>
@@ -32,3 +42,9 @@ const year = new Date().getFullYear();
     }
   </div>
 </footer>
+
+<script
+  defer
+  is:inline
+  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"
+/>

@@ -23,3 +23,25 @@ export function getAllTags(posts: CollectionEntry<'blog'>[]) {
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
+
+export function getAllCategories(posts: CollectionEntry<'blog'>[]) {
+  const map = new Map<string, number>();
+  for (const post of posts) {
+    for (const category of post.data.categories) {
+      map.set(category, (map.get(category) || 0) + 1);
+    }
+  }
+  return [...map.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+export function groupByYear(posts: CollectionEntry<'blog'>[]) {
+  const map = new Map<number, CollectionEntry<'blog'>[]>();
+  for (const post of posts) {
+    const year = post.data.pubDate.getFullYear();
+    if (!map.has(year)) map.set(year, []);
+    map.get(year)!.push(post);
+  }
+  return [...map.entries()].sort((a, b) => b[0] - a[0]);
+}

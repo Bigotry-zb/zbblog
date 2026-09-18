@@ -2,6 +2,7 @@
 title: 这是一篇草稿示例
 description: '设置了 draft: true，生产构建时不会输出。'
 pubDate: 2026-09-18
+categories: ['随笔']
 draft: true
 tags: ['随笔']
 ---

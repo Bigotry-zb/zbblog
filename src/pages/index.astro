@@ -1,31 +1,21 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PostCard from '../components/PostCard.astro';
-import { SITE, HOME_POST_COUNT } from '../consts';
+import Hero from '../components/Hero.astro';
+import PostList from '../components/PostList.astro';
+import Pagination from '../components/Pagination.astro';
+import { SITE, POSTS_PER_PAGE } from '../consts';
 import { getPublishedPosts } from '../utils/posts';
 
 const posts = await getPublishedPosts();
-const recent = posts.slice(0, HOME_POST_COUNT);
+const total = Math.ceil(posts.length / POSTS_PER_PAGE);
+const current = posts.slice(0, POSTS_PER_PAGE);
 ---
 
-<BaseLayout>
-  <h1 class="page-title">{SITE.title}</h1>
-  <p class="page-desc">{SITE.description}</p>
+<BaseLayout description={SITE.description}>
+  <Fragment slot="hero">
+    <Hero height="full" subtitle={SITE.subtitle} typing />
+  </Fragment>
 
-  <h2 style="font-size:1.1rem;margin-top:2.2em;">最新文章</h2>
-  {
-    recent.length === 0 ? (
-      <p class="empty">还没有文章，去 src/content/blog 新建第一篇吧。</p>
-    ) : (
-      <ul class="post-list">
-        {recent.map((post) => (
-          <PostCard post={post} />
-        ))}
-      </ul>
-    )
-  }
-
-  <p style="margin-top:24px;">
-    <a href="/blog/">查看全部文章 →</a>
-  </p>
+  <PostList posts={current} />
+  <Pagination current={1} total={total} />
 </BaseLayout>

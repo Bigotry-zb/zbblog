@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Icon from '../components/Icon.astro';
 import { SITE } from '../consts';
 import '../styles/global.css';
 
@@ -18,7 +19,7 @@ const {
   publishedTime,
 } = Astro.props;
 
-const pageTitle = title ? `${title} · ${SITE.title}` : SITE.title;
+const pageTitle = title ? `${title} | ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -32,26 +33,76 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <meta name="author" content={SITE.author} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate" type="application/rss+xml" title={SITE.title} href="/rss.xml" />
+    <link rel="icon" type="image/png" href={SITE.avatar} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={SITE.title}
+      href="/rss.xml"
+    />
 
     <meta property="og:type" content={type} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={SITE.title} />
-    {publishedTime && (
-      <meta property="article:published_time" content={publishedTime.toISOString()} />
-    )}
+    {
+      publishedTime && (
+        <meta
+          property="article:published_time"
+          content={publishedTime.toISOString()}
+        />
+      )
+    }
     <meta name="twitter:card" content="summary" />
+
+    <script is:inline>
+      (function () {
+        try {
+          var theme = localStorage.getItem('theme');
+          if (!theme) {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
   </head>
   <body>
     <Header />
-    <main>
-      <div class="wrap">
+
+    <slot name="hero" />
+
+    <main id="board">
+      <div class="container">
         <slot />
       </div>
     </main>
+
     <Footer />
+
+    <button class="scroll-top" id="scroll-top" type="button" aria-label="回到顶部">
+      <Icon name="arrowUp" size={20} />
+    </button>
+
+    <script is:inline>
+      (function () {
+        var btn = document.getElementById('scroll-top');
+        if (!btn) return;
+        function onScroll() {
+          if (window.scrollY > 400) btn.classList.add('show');
+          else btn.classList.remove('show');
+        }
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        btn.addEventListener('click', function () {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      })();
+    </script>
   </body>
 </html>

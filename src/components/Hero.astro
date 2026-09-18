@@ -1,0 +1,79 @@
+---
+import Icon from './Icon.astro';
+import { SITE } from '../consts';
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  height?: 'full' | 'short';
+  typing?: boolean;
+  image?: string;
+}
+
+const {
+  title,
+  subtitle,
+  height = 'short',
+  typing = false,
+  image = SITE.banner,
+} = Astro.props;
+---
+
+<section
+  class:list={['banner', { short: height === 'short' }]}
+  style={`--banner-image: url('${image}')`}
+>
+  <div class="banner-mask">
+    {title && <h1 class="banner-title">{title}</h1>}
+    {
+      subtitle &&
+        (typing ? (
+          <div class="banner-subtitle">
+            <span id="subtitle" data-typed-text={subtitle} />
+            <span class="typed-cursor">_</span>
+          </div>
+        ) : (
+          <p class="banner-subtitle">{subtitle}</p>
+        ))
+    }
+    <slot />
+    {
+      height === 'full' && (
+        <a class="scroll-down" href="#board" aria-label="向下滚动">
+          <Icon name="arrowDown" size={26} />
+        </a>
+      )
+    }
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    var el = document.getElementById('subtitle');
+    if (!el) return;
+    var text = el.getAttribute('data-typed-text') || '';
+    var i = 0;
+    var deleting = false;
+    function tick() {
+      el.textContent = text.slice(0, i);
+      if (!deleting) {
+        if (i < text.length) {
+          i++;
+          setTimeout(tick, 150);
+        } else {
+          deleting = true;
+          setTimeout(tick, 2500);
+        }
+      } else {
+        if (i > 0) {
+          i--;
+          setTimeout(tick, 70);
+        } else {
+          deleting = false;
+          setTimeout(tick, 600);
+        }
+      }
+    }
+    tick();
+  })();
+</script>

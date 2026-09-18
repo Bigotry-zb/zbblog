@@ -1,22 +1,165 @@
 ---
 import { NAV, SITE } from '../consts';
+import Icon from './Icon.astro';
 
 const path = Astro.url.pathname;
 const isActive = (href: string) =>
   href === '/' ? path === '/' : path.startsWith(href);
 ---
 
-<header class="site-header">
-  <div class="wrap">
-    <a class="brand" href="/">{SITE.title}</a>
-    <nav class="nav">
+<header class="site-header" id="navbar">
+  <div class="navbar-inner">
+    <a class="brand" href="/">{SITE.brand}</a>
+
+    <nav class="nav" id="nav-menu">
       {
         NAV.map((item) => (
-          <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+          <a
+            class="nav-link"
+            href={item.href}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            <Icon name={item.icon} />
             {item.label}
           </a>
         ))
       }
+      <button class="nav-link" id="search-btn" type="button" aria-label="搜索">
+        <Icon name="search" />
+        <span class="search-label">搜索</span>
+      </button>
+      <button class="nav-link" id="theme-toggle" type="button" aria-label="切换主题">
+        <span class="theme-moon"><Icon name="moon" /></span>
+        <span class="theme-sun"><Icon name="sun" /></span>
+      </button>
     </nav>
+
+    <button class="nav-toggle" id="nav-toggle" type="button" aria-label="菜单">
+      <Icon name="menu" size={22} />
+    </button>
   </div>
 </header>
+
+<div class="search-modal" id="search-modal">
+  <div class="search-box">
+    <input
+      class="search-input"
+      id="search-input"
+      type="text"
+      placeholder="输入关键词搜索文章…"
+      autocomplete="off"
+    />
+    <div class="search-results" id="search-results">
+      <div class="search-empty">输入关键词开始搜索</div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var header = document.getElementById('navbar');
+    function onScroll() {
+      if (!header) return;
+      if (window.scrollY > 40) header.classList.add('scrolled');
+      else header.classList.remove('scrolled');
+    }
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    var navToggle = document.getElementById('nav-toggle');
+    var navMenu = document.getElementById('nav-menu');
+    if (navToggle && navMenu) {
+      navToggle.addEventListener('click', function () {
+        navMenu.classList.toggle('open');
+      });
+    }
+
+    var themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        try {
+          localStorage.setItem('theme', next);
+        } catch (e) {}
+      });
+    }
+
+    // 搜索
+    var modal = document.getElementById('search-modal');
+    var input = document.getElementById('search-input');
+    var results = document.getElementById('search-results');
+    var searchBtn = document.getElementById('search-btn');
+    var index = null;
+    var loading = false;
+
+    function loadIndex(cb) {
+      if (index) return cb(index);
+      if (loading) return;
+      loading = true;
+      fetch('/search.json')
+        .then(function (r) { return r.json(); })
+        .then(function (data) { index = data; loading = false; cb(index); })
+        .catch(function () { loading = false; });
+    }
+
+    function render(list, keyword) {
+      if (!keyword) {
+        results.innerHTML = '<div class="search-empty">输入关键词开始搜索</div>';
+        return;
+      }
+      if (!list.length) {
+        results.innerHTML = '<div class="search-empty">没有找到相关文章</div>';
+        return;
+      }
+      results.innerHTML = list
+        .slice(0, 20)
+        .map(function (p) {
+          return (
+            '<a class="search-result" href="' + p.url + '">' +
+            p.title +
+            '<small>' + (p.description || p.tags.join(' / ')) + '</small></a>'
+          );
+        })
+        .join('');
+    }
+
+    function search(keyword) {
+      var kw = keyword.trim().toLowerCase();
+      loadIndex(function (list) {
+        var matched = !kw
+          ? []
+          : list.filter(function (p) {
+              return (
+                p.title.toLowerCase().indexOf(kw) > -1 ||
+                (p.description || '').toLowerCase().indexOf(kw) > -1 ||
+                p.tags.join(' ').toLowerCase().indexOf(kw) > -1 ||
+                (p.content || '').toLowerCase().indexOf(kw) > -1
+              );
+            });
+        render(matched, kw);
+      });
+    }
+
+    function openModal() {
+      modal.classList.add('open');
+      input.focus();
+      search(input.value);
+    }
+    function closeModal() {
+      modal.classList.remove('open');
+    }
+
+    if (searchBtn) searchBtn.addEventListener('click', openModal);
+    if (input) input.addEventListener('input', function () { search(input.value); });
+    if (modal) {
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeModal();
+    });
+  })();
+</script>

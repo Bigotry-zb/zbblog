@@ -10,13 +10,15 @@ const blog = defineCollection({
     description: z.string().default(''),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
+    // 分类（参照原 Hexo 博客）
+    categories: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
     // 草稿：draft=true 时生产构建不会输出，本地 dev 仍可见
     draft: z.boolean().default(false),
     // 置顶
     pinned: z.boolean().default(false),
     cover: z.string().optional(),
-    author: z.string().default('ZB'),
+    author: z.string().default('Zbiao'),
   }),
 });
 

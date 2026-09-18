@@ -1,0 +1,18 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import PostCard from './PostCard.astro';
+
+interface Props {
+  posts: CollectionEntry<'blog'>[];
+}
+
+const { posts } = Astro.props;
+---
+
+{
+  posts.length === 0 ? (
+    <p class="empty">还没有文章，去 src/content/blog 新建第一篇吧。</p>
+  ) : (
+    posts.map((post) => <PostCard post={post} />)
+  )
+}

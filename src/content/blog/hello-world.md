@@ -2,7 +2,8 @@
 title: 你好，世界
 description: 这是本站的第一篇文章，介绍博客的技术选型与写作方式。
 pubDate: 2026-09-18
-tags: ['随笔', 'Astro']
+categories: ['随笔']
+tags: ['Astro']
 pinned: true
 ---
 

@@ -2,7 +2,8 @@
 title: 从零部署到阿里云 ECS
 description: 记录买服务器、域名、备案、Nginx 托管静态博客的完整流程。
 pubDate: 2026-09-17
-tags: ['运维', 'Nginx', '阿里云']
+categories: ['运维']
+tags: ['Nginx', '阿里云']
 ---
 
 这篇笔记记录把一个静态博客部署到阿里云 ECS 的完整流程。

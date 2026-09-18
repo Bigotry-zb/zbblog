@@ -29,6 +29,18 @@ npm run preview    # 预览构建结果
 npm run new -- "我的第一篇文章"
 ```
 
+## 主题风格
+
+参照原 Hexo Fluid 主题重做，主要特性：
+
+- 首页全屏 Hero 大图 + 打字机副标题，固定透明导航（滚动后变实心）
+- 文章卡片列表、分页
+- 归档（按年份）、分类、标签三个维度
+- 文章详情页：右侧粘性目录、代码高亮、阅读时长
+- 深色模式（跟随系统，可手动切换并记忆）
+- 站内搜索（客户端，基于构建时生成的 `search.json`）
+- 回到顶部、RSS、SEO meta、sitemap
+
 ## 目录结构
 
 ```
@@ -36,16 +48,26 @@ zbblog/
 ├─ src/
 │  ├─ content/
 │  │  └─ blog/            # ★ 所有文章（Markdown），唯一真实来源
-│  ├─ pages/              # 路由：首页/列表/详情/标签/关于/RSS
+│  ├─ pages/              # 路由
+│  │  ├─ index.astro      # 首页（第 1 页）
+│  │  ├─ page/[page].astro# 首页分页
+│  │  ├─ blog/            # 文章列表 + 详情
+│  │  ├─ archives/        # 归档
+│  │  ├─ categories/      # 分类
+│  │  ├─ tags/            # 标签
+│  │  ├─ about.astro      # 关于
+│  │  ├─ rss.xml.js       # RSS
+│  │  └─ search.json.js   # 搜索索引
 │  ├─ layouts/            # 页面骨架
-│  ├─ components/         # 头部/页脚/文章卡片
-│  ├─ styles/global.css   # 全局样式
-│  ├─ consts.ts           # 站点名、导航、备案号
+│  ├─ components/         # 导航/页脚/Hero/文章卡片/图标/分页
+│  ├─ styles/global.css   # 全局样式（含深色模式）
+│  ├─ utils/              # 日期、标签、文章聚合等工具
+│  ├─ consts.ts           # 站点名、导航、Hero 文案、备案号
 │  └─ content.config.ts   # 文章 frontmatter 校验规则
-├─ public/                # 原样拷贝到 dist 的静态资源
+├─ public/
+│  ├─ img/                # 背景图、头像
 │  ├─ favicon.svg
-│  ├─ robots.txt
-│  └─ images/             # 文章配图（小图放这里）
+│  └─ robots.txt
 ├─ scripts/new-post.mjs   # 新建文章脚本
 ├─ deploy/                # Nginx 配置 + 部署脚本
 └─ astro.config.mjs       # site 域名、sitemap
@@ -160,7 +182,8 @@ sudo certbot --nginx -d 你的域名 -d www.你的域名
 title: 文章标题
 description: 摘要（列表页与 SEO 使用）
 pubDate: 2026-09-18
-tags: ['标签1', '标签2']
+categories: ['后端']
+tags: ['Java', 'JVM']
 draft: false
 pinned: false
 ---

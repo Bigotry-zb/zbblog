@@ -6,6 +6,12 @@ export function formatDate(date: Date): string {
   });
 }
 
+export function formatMonthDay(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${month}-${day}`;
+}
+
 export function readingTime(body: string | undefined): number {
   if (!body) return 1;
   const cjk = (body.match(/[\u4e00-\u9fa5]/g) || []).length;
@@ -22,4 +28,12 @@ export function slugifyTag(tag: string): string {
 
 export function tagHref(tag: string): string {
   return `/tags/${encodeURIComponent(slugifyTag(tag))}/`;
+}
+
+export function slugifyCategory(category: string): string {
+  return category.trim().toLowerCase().replace(/\s+/g, '-');
+}
+
+export function categoryHref(category: string): string {
+  return `/categories/${encodeURIComponent(slugifyCategory(category))}/`;
 }

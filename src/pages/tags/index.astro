@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../../components/Hero.astro';
 import { tagHref } from '../../utils/format';
 import { getAllTags, getPublishedPosts } from '../../utils/posts';
 
@@ -8,17 +9,19 @@ const tags = getAllTags(posts);
 ---
 
 <BaseLayout title="标签" description="按标签浏览文章">
-  <h1 class="page-title">标签</h1>
-  <p class="page-desc">共 {tags.length} 个标签</p>
+  <Fragment slot="hero">
+    <Hero height="short" title="标签" subtitle={`共 ${tags.length} 个标签`} />
+  </Fragment>
 
   {
     tags.length === 0 ? (
       <p class="empty">还没有标签。</p>
     ) : (
-      <div class="tag-cloud">
+      <div class="chip-list">
         {tags.map((tag) => (
-          <a class="tag" href={tagHref(tag.name)}>
-            {tag.name} ({tag.count})
+          <a class="chip" href={tagHref(tag.name)}>
+            #{tag.name}
+            <span class="chip-count">{tag.count}</span>
           </a>
         ))}
       </div>

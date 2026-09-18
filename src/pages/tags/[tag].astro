@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import PostCard from '../../components/PostCard.astro';
+import Hero from '../../components/Hero.astro';
+import PostList from '../../components/PostList.astro';
 import { slugifyTag } from '../../utils/format';
 import { getPublishedPosts } from '../../utils/posts';
 
@@ -26,12 +27,9 @@ const { tagName, posts } = Astro.props;
 ---
 
 <BaseLayout title={`标签：${tagName}`} description={`标签 ${tagName} 下的文章`}>
-  <h1 class="page-title">标签：{tagName}</h1>
-  <p class="page-desc">共 {posts.length} 篇</p>
+  <Fragment slot="hero">
+    <Hero height="short" title={`#${tagName}`} subtitle={`共 ${posts.length} 篇`} />
+  </Fragment>
 
-  <ul class="post-list">
-    {posts.map((post) => <PostCard post={post} />)}
-  </ul>
-
-  <p style="margin-top:24px;"><a href="/tags/">← 全部标签</a></p>
+  <PostList posts={posts} />
 </BaseLayout>
