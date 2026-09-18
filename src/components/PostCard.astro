@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate, readingTime, tagHref } from '../utils/format';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, description, pubDate, tags, pinned } = post.data;
+const minutes = readingTime(post.body);
+---
+
+<li class="post-item">
+  <h2>
+    {pinned && <span class="pinned-flag">[置顶] </span>}
+    <a href={`/blog/${post.id}/`}>{title}</a>
+  </h2>
+  <div class="post-meta">
+    <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+    <span>· 约 {minutes} 分钟</span>
+    {tags.map((tag) => <a class="tag" href={tagHref(tag)}>{tag}</a>)}
+  </div>
+  {description && <p class="post-desc">{description}</p>}
+</li>

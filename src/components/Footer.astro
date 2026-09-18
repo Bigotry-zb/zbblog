@@ -1,0 +1,34 @@
+---
+import { SITE } from '../consts';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-links">
+      <a href="/rss.xml">RSS</a>
+      <a href="/sitemap-index.xml">Sitemap</a>
+      <a href={`https://github.com/`} rel="noopener" target="_blank">GitHub</a>
+    </div>
+    <div>© {year} {SITE.author} · {SITE.title}</div>
+    {
+      SITE.icp && (
+        <div>
+          <a href="https://beian.miit.gov.cn/" rel="noopener" target="_blank">
+            {SITE.icp}
+          </a>
+        </div>
+      )
+    }
+    {
+      SITE.police && (
+        <div>
+          <a href="https://beian.mps.gov.cn/" rel="noopener" target="_blank">
+            {SITE.police}
+          </a>
+        </div>
+      )
+    }
+  </div>
+</footer>

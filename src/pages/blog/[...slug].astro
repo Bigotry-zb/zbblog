@@ -1,0 +1,61 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate, readingTime, tagHref } from '../../utils/format';
+import { getPublishedPosts } from '../../utils/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const { title, description, pubDate, updatedDate, tags } = post.data;
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const minutes = readingTime(post.body);
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  type="article"
+  publishedTime={pubDate}
+>
+  <article class="prose">
+    <h1>{title}</h1>
+    <div class="post-meta">
+      <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+      <span>· 约 {minutes} 分钟</span>
+      {
+        updatedDate && (
+          <span>· 更新于 {formatDate(updatedDate)}</span>
+        )
+      }
+      {tags.map((tag) => <a class="tag" href={tagHref(tag)}>{tag}</a>)}
+    </div>
+
+    {
+      toc.length > 1 && (
+        <nav class="toc">
+          <div class="toc-title">目录</div>
+          <ul>
+            {toc.map((h) => (
+              <li style={h.depth === 3 ? 'margin-left:14px' : ''}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+
+    <Content />
+
+    <hr style="margin:40px 0;border:none;border-top:1px solid var(--border)" />
+    <p><a href="/blog/">← 返回文章列表</a></p>
+  </article>
+</BaseLayout>
