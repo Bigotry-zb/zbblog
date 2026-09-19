@@ -5,6 +5,9 @@ node_modules/
 dist/
 .astro/
 
+# 部署包
+deploy/*.zip
+
 # 环境变量
 .env
 .env.*

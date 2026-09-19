@@ -1,8 +1,8 @@
 export const SITE = {
   // 站点标题（浏览器标签 / SEO）
-  title: 'Zbiao | 多吃一点',
+  title: 'Zb|不务正业',
   // 导航左侧品牌名
-  brand: "ZBiao's Blog",
+  brand: 'ZBiao 不务正业',
   // 首页 Hero 上的打字机副标题
   subtitle: '心有猛虎，细嗅蔷薇',
   description: '记录技术、生活与思考。',
