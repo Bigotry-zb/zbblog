@@ -1,0 +1,47 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload and extract
+        env:
+          SSH_USER: ${{ secrets.SERVER_USER }}
+          SSH_HOST: ${{ secrets.SERVER_HOST }}
+          TARGET: ${{ secrets.SERVER_TARGET }}
+        run: |
+          tar -czf /tmp/zbblog-dist.tar.gz -C dist .
+          scp -i ~/.ssh/deploy_key /tmp/zbblog-dist.tar.gz "$SSH_USER@$SSH_HOST:/tmp/zbblog-dist.tar.gz"
+          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
+            "mkdir -p '$TARGET' && tar -xzf /tmp/zbblog-dist.tar.gz -C '$TARGET' && rm -f /tmp/zbblog-dist.tar.gz"
