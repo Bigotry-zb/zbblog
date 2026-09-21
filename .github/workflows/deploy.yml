@@ -12,6 +12,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,12 +29,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Setup SSH
+      - name: Setup SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
 
       - name: Upload and extract
         env:
@@ -41,7 +41,14 @@ jobs:
           SSH_HOST: ${{ secrets.SERVER_HOST }}
           TARGET: ${{ secrets.SERVER_TARGET }}
         run: |
+          set -e
+          OPTS="-i $HOME/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=3"
+          echo "== 测试 SSH 连接 =="
+          ssh $OPTS "$SSH_USER@$SSH_HOST" "echo SSH OK; df -h / | tail -1"
+          echo "== 打包 =="
           tar -czf /tmp/zbblog-dist.tar.gz -C dist .
-          scp -i ~/.ssh/deploy_key /tmp/zbblog-dist.tar.gz "$SSH_USER@$SSH_HOST:/tmp/zbblog-dist.tar.gz"
-          ssh -i ~/.ssh/deploy_key "$SSH_USER@$SSH_HOST" \
-            "mkdir -p '$TARGET' && tar -xzf /tmp/zbblog-dist.tar.gz -C '$TARGET' && rm -f /tmp/zbblog-dist.tar.gz"
+          ls -lh /tmp/zbblog-dist.tar.gz
+          echo "== 上传 =="
+          scp $OPTS /tmp/zbblog-dist.tar.gz "$SSH_USER@$SSH_HOST:/tmp/zbblog-dist.tar.gz"
+          echo "== 解压到 $TARGET =="
+          ssh $OPTS "$SSH_USER@$SSH_HOST" "mkdir -p '$TARGET' && tar -xzf /tmp/zbblog-dist.tar.gz -C '$TARGET' && rm -f /tmp/zbblog-dist.tar.gz && echo DONE"
