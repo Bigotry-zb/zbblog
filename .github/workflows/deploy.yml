@@ -40,15 +40,51 @@ jobs:
           SSH_USER: ${{ secrets.SERVER_USER }}
           SSH_HOST: ${{ secrets.SERVER_HOST }}
           TARGET: ${{ secrets.SERVER_TARGET }}
+          RUN_ID: ${{ github.run_id }}
         run: |
-          set -e
-          OPTS="-i $HOME/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=3"
-          echo "== 测试 SSH 连接 =="
-          ssh $OPTS "$SSH_USER@$SSH_HOST" "echo SSH OK; df -h / | tail -1"
-          echo "== 打包 =="
+          set -x
+          KEY="$HOME/.ssh/deploy_key"
+          OPTS="-i $KEY -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=10 -o ServerAliveCountMax=3"
+          REMOTE_TMP="/tmp/zbblog-$RUN_ID.tar.gz"
+          SUMMARY="$GITHUB_STEP_SUMMARY"
+
+          echo "## 部署诊断" >> "$SUMMARY"
+          echo "- HOST: $SSH_HOST" >> "$SUMMARY"
+
+          echo "== 1/4 测试 TCP 22 =="
+          if timeout 20 bash -c "cat < /dev/null > /dev/tcp/$SSH_HOST/22"; then
+            echo "- TCP 22 可达" >> "$SUMMARY"
+          else
+            echo "- **TCP 22 不可达**（安全组/防火墙拦截）" >> "$SUMMARY"
+            exit 1
+          fi
+
+          echo "== 2/4 测试 SSH 登录 =="
+          if timeout 60 ssh -v $OPTS "$SSH_USER@$SSH_HOST" "echo SSH_OK; df -h / | tail -1" > /tmp/ssh.log 2>&1; then
+            echo "- SSH 登录成功" >> "$SUMMARY"
+            tail -n 3 /tmp/ssh.log
+          else
+            echo "- **SSH 登录失败**" >> "$SUMMARY"
+            echo '```' >> "$SUMMARY"
+            tail -n 40 /tmp/ssh.log >> "$SUMMARY"
+            echo '```' >> "$SUMMARY"
+            exit 1
+          fi
+
+          echo "== 3/4 打包并上传 =="
           tar -czf /tmp/zbblog-dist.tar.gz -C dist .
           ls -lh /tmp/zbblog-dist.tar.gz
-          echo "== 上传 =="
-          scp $OPTS /tmp/zbblog-dist.tar.gz "$SSH_USER@$SSH_HOST:/tmp/zbblog-dist.tar.gz"
-          echo "== 解压到 $TARGET =="
-          ssh $OPTS "$SSH_USER@$SSH_HOST" "mkdir -p '$TARGET' && tar -xzf /tmp/zbblog-dist.tar.gz -C '$TARGET' && rm -f /tmp/zbblog-dist.tar.gz && echo DONE"
+          if timeout 300 scp $OPTS /tmp/zbblog-dist.tar.gz "$SSH_USER@$SSH_HOST:$REMOTE_TMP"; then
+            echo "- 上传成功" >> "$SUMMARY"
+          else
+            echo "- **scp 上传失败/超时**" >> "$SUMMARY"
+            exit 1
+          fi
+
+          echo "== 4/4 服务器解压 =="
+          if timeout 120 ssh $OPTS "$SSH_USER@$SSH_HOST" "mkdir -p '$TARGET' && tar -xzf '$REMOTE_TMP' -C '$TARGET' && rm -f '$REMOTE_TMP' && echo DEPLOY_DONE"; then
+            echo "- 部署完成" >> "$SUMMARY"
+          else
+            echo "- **解压失败**" >> "$SUMMARY"
+            exit 1
+          fi
