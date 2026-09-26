@@ -11,7 +11,9 @@ export const SITE = {
   // 头像
   avatar: '/img/avatar.png',
   // Hero 背景大图
-  hero: '/img/hero.jpg',
+  hero: '/img/default.png',
+  // 兼容旧 Hero 组件
+  banner: '/img/default.png',
   // 侧边栏个人简介
   bio: '一名后端开发者，喜欢折腾技术与生活。',
   // 页脚起始年份

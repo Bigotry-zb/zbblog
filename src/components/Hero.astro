@@ -15,31 +15,31 @@ const {
   subtitle,
   height = 'short',
   typing = false,
-  image = SITE.hero,
+  image = SITE.banner,
 } = Astro.props;
 ---
 
 <section
-  class:list={['hero', { short: height === 'short' }]}
-  style={`--hero-image: url('${image}')`}
+  class:list={['banner', { short: height === 'short' }]}
+  style={`--banner-image: url('${image}')`}
 >
-  <div class="hero-mask">
-    {title && <h1 class="hero-title">{title}</h1>}
+  <div class="banner-mask">
+    {title && <h1 class="banner-title">{title}</h1>}
     {
       subtitle &&
         (typing ? (
-          <div class="hero-subtitle">
+          <div class="banner-subtitle">
             <span id="subtitle" data-typed-text={subtitle} />
             <span class="typed-cursor">_</span>
           </div>
         ) : (
-          <p class="hero-subtitle">{subtitle}</p>
+          <p class="banner-subtitle">{subtitle}</p>
         ))
     }
     <slot />
     {
       height === 'full' && (
-        <a class="hero-scroll" href="#board" aria-label="向下滚动">
+        <a class="scroll-down" href="#board" aria-label="向下滚动">
           <Icon name="arrowDown" size={26} />
         </a>
       )
