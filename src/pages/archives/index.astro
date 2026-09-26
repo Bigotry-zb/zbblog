@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
+import Sidebar from '../../components/Sidebar.astro';
 import { formatMonthDay } from '../../utils/format';
 import { getPublishedPosts, groupByYear } from '../../utils/posts';
 
@@ -13,23 +14,30 @@ const years = groupByYear(posts);
     <Hero height="short" title="归档" subtitle={`共 ${posts.length} 篇文章`} />
   </Fragment>
 
-  {
-    years.length === 0 ? (
-      <p class="empty">还没有文章。</p>
-    ) : (
-      years.map(([year, list]) => (
-        <section class="archive-year">
-          <h2>{year}</h2>
-          <ul class="archive-list">
-            {list.map((post) => (
-              <li>
-                <span class="archive-date">{formatMonthDay(post.data.pubDate)}</span>
-                <a href={`/blog/${post.id}/`}>{post.data.title}</a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))
-    )
-  }
+  <div class="layout">
+    <div class="main-col">
+      {
+        years.length === 0 ? (
+          <p class="empty">还没有文章。</p>
+        ) : (
+          years.map(([year, list]) => (
+            <section class="archive-year">
+              <h2>{year}</h2>
+              <ul class="archive-list">
+                {list.map((post) => (
+                  <li>
+                    <span class="archive-date">
+                      {formatMonthDay(post.data.pubDate)}
+                    </span>
+                    <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        )
+      }
+    </div>
+    <Sidebar posts={posts} />
+  </div>
 </BaseLayout>

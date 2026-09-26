@@ -1,0 +1,101 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Icon from './Icon.astro';
+import { SITE, SOCIALS } from '../consts';
+import { tagHref } from '../utils/format';
+import { getAllTags, getAllCategories } from '../utils/posts';
+
+interface Props {
+  posts: CollectionEntry<'blog'>[];
+}
+
+const { posts } = Astro.props;
+const tags = getAllTags(posts);
+const categories = getAllCategories(posts);
+const topTags = tags.slice(0, 12);
+
+const start = new Date(`${SITE.since}-01-01`).getTime();
+const days = Math.max(1, Math.ceil((Date.now() - start) / 86400000));
+---
+
+<aside class="side-col">
+  <div class="side-card profile-card">
+    <img class="profile-avatar" src={SITE.avatar} alt={SITE.author} />
+    <div class="profile-name">{SITE.author}</div>
+    <p class="profile-desc">{SITE.bio}</p>
+
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <span class="stat-num">{posts.length}</span>
+        <span class="stat-label">文章</span>
+      </div>
+      <div class="profile-stat">
+        <span class="stat-num">{tags.length}</span>
+        <span class="stat-label">标签</span>
+      </div>
+      <div class="profile-stat">
+        <span class="stat-num">{categories.length}</span>
+        <span class="stat-label">分类</span>
+      </div>
+    </div>
+
+    <div class="social-list">
+      {
+        SOCIALS.map((social) => (
+          <a
+            class="social-link"
+            href={social.href}
+            title={social.label}
+            aria-label={social.label}
+            target={social.href.startsWith('http') ? '_blank' : undefined}
+            rel="noopener"
+          >
+            <Icon name={social.icon} size={18} />
+          </a>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="side-card">
+    <div class="side-title"><Icon name="chart" /> 站点统计</div>
+    <div class="stat-rows">
+      <div class="stat-row">
+        <span><Icon name="archive" /> 文章</span><b>{posts.length}</b>
+      </div>
+      <div class="stat-row">
+        <span><Icon name="tags" /> 标签</span><b>{tags.length}</b>
+      </div>
+      <div class="stat-row">
+        <span><Icon name="category" /> 分类</span><b>{categories.length}</b>
+      </div>
+      <div class="stat-row">
+        <span><Icon name="clock" /> 运行天数</span><b>{days}</b>
+      </div>
+      <div class="stat-row">
+        <span><Icon name="eye" /> 访问量</span>
+        <b><span id="busuanzi_value_site_pv">-</span></b>
+      </div>
+      <div class="stat-row">
+        <span><Icon name="user" /> 访客数</span>
+        <b><span id="busuanzi_value_site_uv">-</span></b>
+      </div>
+    </div>
+  </div>
+
+  {
+    topTags.length > 0 && (
+      <div class="side-card">
+        <div class="side-title"><Icon name="tags" /> 标签云</div>
+        <div class="tag-cloud">
+          {topTags.map((tag) => (
+            <a class="tag" href={tagHref(tag.name)}>
+              {tag.name}
+              <span>{tag.count}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )
+  }
+</aside>

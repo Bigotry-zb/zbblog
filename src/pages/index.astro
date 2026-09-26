@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import PostList from '../components/PostList.astro';
 import Pagination from '../components/Pagination.astro';
+import Sidebar from '../components/Sidebar.astro';
 import { SITE, POSTS_PER_PAGE } from '../consts';
 import { getPublishedPosts } from '../utils/posts';
 
@@ -16,6 +17,11 @@ const current = posts.slice(0, POSTS_PER_PAGE);
     <Hero height="full" subtitle={SITE.subtitle} typing />
   </Fragment>
 
-  <PostList posts={current} />
-  <Pagination current={1} total={total} />
+  <div class="layout">
+    <div class="main-col">
+      <PostList posts={current} />
+      <Pagination current={1} total={total} />
+    </div>
+    <Sidebar posts={posts} />
+  </div>
 </BaseLayout>

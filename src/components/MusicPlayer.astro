@@ -1,0 +1,35 @@
+---
+import Icon from './Icon.astro';
+import { MUSIC } from '../consts';
+---
+
+{
+  MUSIC.enable && (
+    <div class="side-card music-player">
+      <div class="side-title">
+        <Icon name="music" /> {MUSIC.name}
+      </div>
+      <link
+        rel="stylesheet"
+        href="https://registry.npmmirror.com/aplayer/1.10.1/files/dist/APlayer.min.css"
+      />
+      <meting-js
+        server={MUSIC.server}
+        type={MUSIC.type}
+        id={MUSIC.id}
+        fixed="false"
+        mini="true"
+        theme="#303133"
+        preload="none"
+      />
+      <script
+        is:inline
+        src="https://registry.npmmirror.com/aplayer/1.10.1/files/dist/APlayer.min.js"
+      />
+      <script
+        is:inline
+        src="https://registry.npmmirror.com/meting/2.0.1/files/dist/Meting.min.js"
+      />
+    </div>
+  )
+}

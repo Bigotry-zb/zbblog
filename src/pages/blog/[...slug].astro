@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
 import Icon from '../../components/Icon.astro';
+import Comments from '../../components/Comments.astro';
 import { SITE } from '../../consts';
 import {
   formatDate,
@@ -35,16 +36,16 @@ const minutes = readingTime(post.body);
   publishedTime={pubDate}
 >
   <Fragment slot="hero">
-    <Hero height="short" title={title} image={cover || SITE.banner}>
-      <div class="banner-meta">
+    <Hero height="short" title={title} image={cover || SITE.hero}>
+      <div class="hero-meta">
         <span><Icon name="calendar" /> {formatDate(pubDate)}</span>
-        <span><Icon name="clock" /> 约 {minutes} 分钟</span>
+        <span><Icon name="clock" /> 约 {minutes} 分钟阅读</span>
       </div>
     </Hero>
   </Fragment>
 
-  <div class="post-grid">
-    <article class="post-card">
+  <div class:list={['post-grid', { 'no-toc': toc.length <= 1 }]}>
+    <article class="article-content-card">
       <header class="post-header">
         <div class="post-metas">
           {
@@ -52,9 +53,7 @@ const minutes = readingTime(post.body);
               <div class="post-meta">
                 <Icon name="category" />
                 {categories.map((category) => (
-                  <a class="category-chain" href={categoryHref(category)}>
-                    {category}
-                  </a>
+                  <a href={categoryHref(category)}>{category}</a>
                 ))}
               </div>
             )
@@ -64,9 +63,7 @@ const minutes = readingTime(post.body);
               <div class="post-meta">
                 <Icon name="tags" />
                 {tags.map((tag) => (
-                  <a class="tag" href={tagHref(tag)}>
-                    {tag}
-                  </a>
+                  <a href={tagHref(tag)}>#{tag}</a>
                 ))}
               </div>
             )
@@ -86,8 +83,10 @@ const minutes = readingTime(post.body);
         <Content />
       </div>
 
-      <hr style="margin:40px 0;border:none;border-top:1px solid var(--border)" />
-      <p><a href="/archives/"><Icon name="arrowLeft" /> 返回归档</a></p>
+      <div class="post-footer">
+        <a href="/archives/"><Icon name="arrowLeft" /> 返回归档</a>
+        <a href="/">回到首页 <Icon name="arrowRight" /></a>
+      </div>
     </article>
 
     {
@@ -104,5 +103,9 @@ const minutes = readingTime(post.body);
         </aside>
       )
     }
+  </div>
+
+  <div class="post-comments-wrap">
+    <Comments />
   </div>
 </BaseLayout>

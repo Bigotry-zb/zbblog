@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
 import PostList from '../../components/PostList.astro';
 import Pagination from '../../components/Pagination.astro';
+import Sidebar from '../../components/Sidebar.astro';
 import { POSTS_PER_PAGE } from '../../consts';
 import { getPublishedPosts } from '../../utils/posts';
 
@@ -16,6 +17,7 @@ export async function getStaticPaths() {
       params: { page: String(page) },
       props: {
         posts: posts.slice((page - 1) * POSTS_PER_PAGE, page * POSTS_PER_PAGE),
+        allPosts: posts,
         current: page,
         total,
       },
@@ -23,7 +25,7 @@ export async function getStaticPaths() {
   });
 }
 
-const { posts, current, total } = Astro.props;
+const { posts, allPosts, current, total } = Astro.props;
 ---
 
 <BaseLayout title={`第 ${current} 页`} description="文章列表">
@@ -31,6 +33,11 @@ const { posts, current, total } = Astro.props;
     <Hero height="short" title="文章" subtitle={`第 ${current} 页`} />
   </Fragment>
 
-  <PostList posts={posts} />
-  <Pagination current={current} total={total} />
+  <div class="layout">
+    <div class="main-col">
+      <PostList posts={posts} />
+      <Pagination current={current} total={total} />
+    </div>
+    <Sidebar posts={allPosts} />
+  </div>
 </BaseLayout>

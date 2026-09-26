@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
 import PostList from '../../components/PostList.astro';
+import Sidebar from '../../components/Sidebar.astro';
 import { slugifyTag } from '../../utils/format';
 import { getPublishedPosts } from '../../utils/posts';
 
@@ -19,11 +20,11 @@ export async function getStaticPaths() {
 
   return [...byTag.entries()].map(([slug, value]) => ({
     params: { tag: slug },
-    props: { tagName: value.name, posts: value.posts },
+    props: { tagName: value.name, posts: value.posts, allPosts: posts },
   }));
 }
 
-const { tagName, posts } = Astro.props;
+const { tagName, posts, allPosts } = Astro.props;
 ---
 
 <BaseLayout title={`标签：${tagName}`} description={`标签 ${tagName} 下的文章`}>
@@ -31,5 +32,10 @@ const { tagName, posts } = Astro.props;
     <Hero height="short" title={`#${tagName}`} subtitle={`共 ${posts.length} 篇`} />
   </Fragment>
 
-  <PostList posts={posts} />
+  <div class="layout">
+    <div class="main-col">
+      <PostList posts={posts} />
+    </div>
+    <Sidebar posts={allPosts} />
+  </div>
 </BaseLayout>

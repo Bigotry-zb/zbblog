@@ -1,55 +1,68 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import Icon from './Icon.astro';
-import { formatDate, tagHref, categoryHref } from '../utils/format';
+import { formatDate, readingTime, tagHref, categoryHref } from '../utils/format';
 
 interface Props {
   post: CollectionEntry<'blog'>;
 }
 
 const { post } = Astro.props;
-const { title, description, pubDate, categories, tags, pinned } = post.data;
+const { title, description, pubDate, categories, tags, pinned, cover } =
+  post.data;
 const url = `/blog/${post.id}/`;
+const minutes = readingTime(post.body);
+
+const firstImage = post.body?.match(/!\[[^\]]*\]\(([^)\s]+)/)?.[1];
+const coverSrc = cover || firstImage;
 ---
 
-<article class="index-card">
-  <h1 class="index-header">
-    {pinned && <span class="pinned-flag">[置顶]</span>}
-    <a href={url}>{title}</a>
-  </h1>
+<article class="article-card">
+  {
+    coverSrc && (
+      <a href={url} aria-label={title}>
+        <img class="card-cover" src={coverSrc} alt={title} loading="lazy" />
+      </a>
+    )
+  }
 
-  {description && <a class="index-excerpt" href={url}>{description}</a>}
-
-  <div class="post-metas">
-    <div class="post-meta">
-      <Icon name="calendar" />
-      <time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
-    </div>
-
-    {
-      categories.length > 0 && (
-        <div class="post-meta">
-          <Icon name="category" />
-          {categories.map((category) => (
-            <a class="category-chain" href={categoryHref(category)}>
+  <div class="card-body">
+    <div class="card-top">
+      <div>
+        {
+          categories.map((category) => (
+            <a class="card-category" href={categoryHref(category)}>
               {category}
             </a>
-          ))}
-        </div>
-      )
-    }
+          ))
+        }
+      </div>
+      <time class="card-date" datetime={pubDate.toISOString()}>
+        <Icon name="calendar" />
+        {formatDate(pubDate)}
+      </time>
+    </div>
 
-    {
-      tags.length > 0 && (
-        <div class="post-meta">
-          <Icon name="tags" />
-          {tags.map((tag) => (
-            <a class="tag" href={tagHref(tag)}>
-              {tag}
-            </a>
-          ))}
-        </div>
-      )
-    }
+    <h2 class="card-title">
+      {pinned && <span class="pinned-flag">置顶</span>}
+      <a href={url}>{title}</a>
+    </h2>
+
+    {description && <p class="card-summary">{description}</p>}
+
+    <div class="card-footer">
+      <span class="card-meta"><Icon name="clock" /> 约 {minutes} 分钟</span>
+      {
+        tags.length > 0 && (
+          <div class="card-tags">
+            {tags.map((tag) => (
+              <a class="tag" href={tagHref(tag)}>
+                {tag}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
   </div>
 </article>

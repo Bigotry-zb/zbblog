@@ -1,0 +1,67 @@
+---
+import Icon from './Icon.astro';
+import { GISCUS } from '../consts';
+
+const enabled = Boolean(GISCUS.repo && GISCUS.repoId && GISCUS.categoryId);
+---
+
+{
+  enabled && (
+    <section class="comment-card">
+      <div class="side-title">
+        <Icon name="comment" /> 评论
+      </div>
+      <div
+        class="giscus"
+        data-repo={GISCUS.repo}
+        data-repo-id={GISCUS.repoId}
+        data-category={GISCUS.category}
+        data-category-id={GISCUS.categoryId}
+        data-mapping={GISCUS.mapping}
+        data-reactions-enabled={GISCUS.reactions}
+        data-input-position={GISCUS.inputPosition}
+        data-lang={GISCUS.lang}
+        data-theme="light"
+      />
+      <script
+        is:inline
+        src="https://giscus.app/client.js"
+        data-repo={GISCUS.repo}
+        data-repo-id={GISCUS.repoId}
+        data-category={GISCUS.category}
+        data-category-id={GISCUS.categoryId}
+        data-mapping={GISCUS.mapping}
+        data-strict="0"
+        data-reactions-enabled={GISCUS.reactions}
+        data-emit-metadata="0"
+        data-input-position={GISCUS.inputPosition}
+        data-theme="preferred_color_scheme"
+        data-lang={GISCUS.lang}
+        crossorigin="anonymous"
+        async
+      />
+      <script is:inline>
+        (function () {
+          function sync() {
+            var frame = document.querySelector('iframe.giscus-frame');
+            if (!frame) return;
+            frame.contentWindow.postMessage(
+              {
+                giscus: {
+                  setConfig: {
+                    theme: document.documentElement.getAttribute('data-theme') === 'dark'
+                      ? 'dark'
+                      : 'light',
+                  },
+                },
+              },
+              'https://giscus.app'
+            );
+          }
+          var toggle = document.getElementById('theme-toggle');
+          if (toggle) toggle.addEventListener('click', function () { setTimeout(sync, 100); });
+        })();
+      </script>
+    </section>
+  )
+}

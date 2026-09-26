@@ -1,26 +1,28 @@
 ---
-import { SITE } from '../consts';
+import { SITE, SOCIALS } from '../consts';
 import Icon from './Icon.astro';
 
 const year = new Date().getFullYear();
+const range = SITE.since === year ? `${year}` : `${SITE.since} - ${year}`;
 ---
 
 <footer class="site-footer">
   <div class="container footer-content">
     <div class="footer-links">
-      <a href="/rss.xml"><Icon name="rss" /> RSS</a>
-      <a href={SITE.github} target="_blank" rel="noopener">
-        <Icon name="github" /> GitHub
-      </a>
+      {
+        SOCIALS.map((social) => (
+          <a
+            href={social.href}
+            target={social.href.startsWith('http') ? '_blank' : undefined}
+            rel="noopener"
+          >
+            <Icon name={social.icon} /> {social.label}
+          </a>
+        ))
+      }
     </div>
 
-    <div>Copyright © {year} {SITE.brand}</div>
-
-    <div class="footer-stats">
-      <span id="busuanzi_container_site_pv" style="display:none">
-        总访问量 <span id="busuanzi_value_site_pv">-</span> 次
-      </span>
-    </div>
+    <div>Copyright © {range} {SITE.title}</div>
 
     {
       SITE.icp && (

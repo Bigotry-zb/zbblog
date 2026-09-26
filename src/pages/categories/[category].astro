@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
 import PostList from '../../components/PostList.astro';
+import Sidebar from '../../components/Sidebar.astro';
 import { slugifyCategory } from '../../utils/format';
 import { getPublishedPosts } from '../../utils/posts';
 
@@ -19,11 +20,11 @@ export async function getStaticPaths() {
 
   return [...byCategory.entries()].map(([slug, value]) => ({
     params: { category: slug },
-    props: { categoryName: value.name, posts: value.posts },
+    props: { categoryName: value.name, posts: value.posts, allPosts: posts },
   }));
 }
 
-const { categoryName, posts } = Astro.props;
+const { categoryName, posts, allPosts } = Astro.props;
 ---
 
 <BaseLayout title={`分类：${categoryName}`} description={`分类 ${categoryName} 下的文章`}>
@@ -35,5 +36,10 @@ const { categoryName, posts } = Astro.props;
     />
   </Fragment>
 
-  <PostList posts={posts} />
+  <div class="layout">
+    <div class="main-col">
+      <PostList posts={posts} />
+    </div>
+    <Sidebar posts={allPosts} />
+  </div>
 </BaseLayout>

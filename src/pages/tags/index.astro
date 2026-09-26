@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Hero from '../../components/Hero.astro';
+import Sidebar from '../../components/Sidebar.astro';
 import { tagHref } from '../../utils/format';
 import { getAllTags, getPublishedPosts } from '../../utils/posts';
 
@@ -13,18 +14,23 @@ const tags = getAllTags(posts);
     <Hero height="short" title="标签" subtitle={`共 ${tags.length} 个标签`} />
   </Fragment>
 
-  {
-    tags.length === 0 ? (
-      <p class="empty">还没有标签。</p>
-    ) : (
-      <div class="chip-list">
-        {tags.map((tag) => (
-          <a class="chip" href={tagHref(tag.name)}>
-            #{tag.name}
-            <span class="chip-count">{tag.count}</span>
-          </a>
-        ))}
-      </div>
-    )
-  }
+  <div class="layout">
+    <div class="main-col">
+      {
+        tags.length === 0 ? (
+          <p class="empty">还没有标签。</p>
+        ) : (
+          <div class="chip-list">
+            {tags.map((tag) => (
+              <a class="chip" href={tagHref(tag.name)}>
+                #{tag.name}
+                <span class="chip-count">{tag.count}</span>
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+    <Sidebar posts={posts} />
+  </div>
 </BaseLayout>
